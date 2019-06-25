@@ -1,0 +1,445 @@
+
+一.同步和异步
+ 通常用来形容一次方法调用.
+ 同步:调用一旦开始,调用者必须等到方法调用返回后,才能继续后续的行为.
+ 异步:调用更像一个消息传递,一旦开始,方法调用就会立即返回,调用者就可以继续后续的操作.
+
+同步和异步关注的是消息通信机制
+阻塞和非阻塞关注的是程序在等待调用结果（消息，返回值）时的状态.
+ 同步:阻塞的
+ 异步:非阻塞的
+
+ 举例:
+  同步: 张三打电话叫李四去吃饭,李四一直忙的不停,张三一直等着,之道李四忙完两个人一起去吃饭.相当于浏览器向服务器请求数据,服务器比较忙,浏览器一直等着(页面白屏),直到服务器返回数据,浏览器才能显示页面.
+   异步:张三叫李四去吃饭,李四在忙,张三说了一声然后自己就去吃饭了,李四忙完后自己去吃.相当于浏览器向服务器请求数据,服务器比较忙,浏览器可以自如的做原来的事情(显示页面),服务器返回数据的时候通知浏览器一声,浏览器把返回的数据再渲染到页面,局部更新.
+
+同步就是我强依赖你(对方)，我必须等到你的回复，才能做出下一步响应。即我的操作(行程)是顺序执行的，中间少了哪一步都不可以，或者说中间哪一步出错都不可以，类似于编程中程序被解释器顺序执行一样；同时如果我没有收到你的回复，我就一直处于等待、也就是阻塞的状态。?异步则相反，我并不强依赖你，我对你响应的时间也不敏感，无论你返回还是不返回，我都能继续运行；你响应并返回了，我就继续做之前的事情，你没有响应，我就做其他的事情。也就是说我不存在等待对方的概念，我就是非阻塞的
+。
+
+典型的异步编程模型比如Node.js
+
+举个通俗的例子：
+你打电话问书店老板有没有《分布式系统》这本书，如果是同步通信机制，书店老板会说，你稍等，”我查一下"，然后开始查啊查，等查好了（可能是5秒，也可能是一天）告诉你结果（返回结果）。
+而异步通信机制，书店老板直接告诉你我查一下啊，查好了打电话给你，然后直接挂电话了（不返回结果）。然后查好了，他会主动打电话给你。在这里老板通过“回电”这种方式来回调。
+
+阻塞调用是指调用结果返回之前，当前线程会被挂起。调用线程只有在得到结果之后才会返回。
+非阻塞调用指在不能立刻得到结果之前，该调用不会阻塞当前线程。
+
+还是上面的例子，
+你打电话问书店老板有没有《分布式系统》这本书，你如果是阻塞式调用，你会一直把自己“挂起”，直到得到这本书有没有的结果，如果是非阻塞式调用，你不管老板有没有告诉你，你自己先一边去玩了， 当然你也要偶尔过几分钟check一下老板有没有返回结果。
+在这里阻塞与非阻塞与是否同步异步无关。跟老板通过什么方式回答你结果无关。
+
+
+Ajax
+function ajax(method,url,sendType,sendDate,callback){
+	var xhr=new XMLHttpRequest(); //创建ajax对象
+	xhr.open(method,url); //对请求进行初始化,什么方法,什么地址,是否是异步(同步为false,默认为true)
+	if (sendType =='json'){
+		xhr.setRequestHeader("Content-type","application/json;charset=utf-8");
+	}else if(sendType =='html'){
+		xhr.setRequestHeader("Content-type","text/html;charset=utf-8");
+}
+	if (xhr.readyState==1){
+	        xhr.send(sendData);//发送请求
+}
+	xhr.onreadystatechange = function(event){//处理响应
+		if(xhr.readyState==4&&(xhr.status==200){
+			callback(xhr.responseText);//渲染页面(函数)
+}}};
+
+
+let xhr=new XMLHttpRequest()
+xhr.open("GET","data.json",true)(true,bol是否异步,同步为false,默认为true)
+xhr.send()
+xhr.onreadystatechange=function(){
+	if(xhr.readystate==4){
+		if(xhr.status==200){
+			console.log(xhr.responseText)
+		}
+	}
+}
+console.log(xhr.responseText)
+
+method:请求方法
+url:发送请求URL的字符串
+sendType:
+content-type:使用此类型给服务器发送请求
+datatype:期望从服务器返回的数据类型(1.xml  2.html 3.script(会将post转化为get) 4.json  5.jsonp:使用JSONP加载JSON块  6.text)
+
+
+alert是典型的同步,setTimeout是典型的异步
+例如:console.log(1)             一
+     setTimeout(function(){
+	console.log(2)          四
+},0)
+     console.log(3)             二
+     setTimeout(function(){
+	console.log(4)          五
+},1000)
+     console.log(5)             三
+
+输出结果:1  3  5  2  4  
+
+所有的等待情况都需要异步,等待且不能阻塞程序的时候先执行外面的,执行setTimeout后,传入setTimeout的函数会被储存起来不会立即执行.(单程的特点,不能同时干两件事,js是单程的),每个单程都会绑定一个回调函数,js是单程的,浏览器才是实现异步的关键.
+
+
+
+
+说到异步，肯定会联系出来它的孪生兄弟--同步（Synchronous）,"同步模式"就是上一段的模式，后一个任务等待前一个任务结束，然后再执行，程序的执行顺序与任务的排列顺序是一致的、同步的.
+
+
+
+"异步模式"则完全不同，每一个任务有一个或多个回调函数（callback），前一个任务结束后，不是执行后一个任务，而是执行回调函数，后一个任务则是不等前一个任务结束就执行，所以程序的执行顺序与任务的排列顺序是不一致的、异步的。 "异步模式"非常重要。在浏览器端，耗时很长的操作都应该异步执行，避免浏览器失去响应，最好的例子就是Ajax操作。就现在来说应该没有什么后台服务器还是同步操作了...
+
+
+
+2.
+介绍了理论，没啥用..直接用最直观的代码来体现吧：
+
+
+<body>
+      
+ <button id="Button">展示异步操作</button>
+       
+   <script>
+        
+      var Button=document.getElementById('Button');
+        
+      Button.onclick=function(){
+            
+      alert('展示异步操作--a');
+        
+      }
+        
+      alert('展示异步操作--b');
+      
+    </script>
+    
+ </body>
+
+这个代码也许大家都写过，但是这个简单的例子就体现出了异步和同步的区别了：
+
+我们平常写的代码，都是从上到下来执行的，一般上面的语句还没有执行结束的情况下，下面的语句是不会执行的，但是这段代码我们很容易测试出：先弹出b窗口，当你点击按钮的时候才开始弹出a窗口。 这就是典型的异步操作，不用等把上面的语句全部执行完才开始执行下面的语句。
+
+
+前端异步:setTimeout setinterval
+网络请求:ajax请求   动态<img>加载   事件绑定
+
+事件绑定:比如一个点击事件,我不知道它该什么时候点,但是在它点击之前,我该干嘛干嘛.当事件被处触发时,浏览器的某个模块,会把相应的函数绑到异步队列中,如果现在执行的是空的,就去直接执行这个函数
+  <button id="btn1"></button>
+
+     console.log("start")
+	var btn1=document.getElementById("btn1")
+	btn1.addEventListener('click',function(){
+		console.log("clicked")
+	});
+		console.log("end")
+
+首先输出start  ,再end  点击按钮输出start   再点击一直是clicked.
+
+
+
+
+img图片动态加载异步的例子;
+
+console.log("start")
+	var img=document.createElement("img")
+	img.onload=function(){
+		console.log("loaded")
+	}
+		img.src="img/dn1.jpg";
+	console.log("end")
+       </script>
+	</body>
+
+先start 然后end 再loaded
+onload 是html5中提供的xmlhttprequest v2.0定义的
+
+
+
+promise 异步编程的一种解决方案,比传统的异步解决方案(回调函数)和(事件)更合理,更强大,现已被ES6纳入规范中.
+对象语法:
+let  p1=new Promise((resolve,reject)=>{
+	console.log(1)
+	reject("err")
+})
+console.log(p1)
+console.log(p2)
+
+//1
+Promise {<rejected>: "err"}
+__proto__: Promise
+[[PromiseStatus]]: "rejected"
+[[PromiseValue]]: "err"
+ 
+resolve函数:将promise对象由进行中状态凝固成成功状态
+reject函数:将promise对象由进行中状态凝固成失败状态
+
+ES6中的Promise
+
+1，then()方法
+简单来讲，then 方法就是把原来的回调写法分离出来，在异步操作执行完后，用链式调用的方式执行回调函数。
+而 Promise 的优势就在于这个链式调用。我们可以在 then 方法中继续写 Promise 对象并返回，然后继续调用 then 来进行回调操作。
+ 
+（1）下面通过样例作为演示，我们定义做饭、吃饭、洗碗（cook、eat、wash）这三个方法，它们是层层依赖的关系，下一步的的操作需要使用上一部操作的结果。（这里使用 setTimeout 模拟异步操作）
+
+//做饭
+function cook(){
+    console.log('开始做饭。');
+    var p = new Promise(function(resolve, reject){        //做一些异步操作
+        setTimeout(function(){
+            console.log('做饭完毕！');
+            resolve('鸡蛋炒饭');
+        }, 1000);
+    });
+    return p;
+}
+ 
+//吃饭
+function eat(data){
+    console.log('开始吃饭：' + data);
+    var p = new Promise(function(resolve, reject){        //做一些异步操作
+        setTimeout(function(){
+            console.log('吃饭完毕!');
+            resolve('一块碗和一双筷子');
+        }, 2000);
+    });
+    return p;
+}
+ 
+function wash(data){
+    console.log('开始洗碗：' + data);
+    var p = new Promise(function(resolve, reject){        //做一些异步操作
+        setTimeout(function(){
+            console.log('洗碗完毕!');
+            resolve('干净的碗筷');
+        }, 2000);
+    });
+    return p;
+}
+
+（2）使用 then 链式调用这三个方法：
+
+
+cook()
+.then(function(data){
+    return eat(data);
+})
+.then(function(data){
+    return wash(data);
+})
+.then(function(data){
+    console.log(data);
+});
+
+当然上面代码还可以简化成如下：
+
+
+cook()
+.then(eat)
+.then(wash)
+.then(function(data){
+    console.log(data);
+});
+
+（3）运行结果如下：
+
+原文:JS - Promise使用详解2（ES6中的Promise）
+2，reject()方法
+上面样例我们通过 resolve 方法把 Promise 的状态置为完成态（Resolved），这时 then 方法就能捕捉到变化，并执行“成功”情况的回调。
+而 reject 方法就是把 Promise 的状态置为已失败（Rejected），这时 then 方法执行“失败”情况的回调（then 方法的第二参数）。
+ 
+（1）下面同样使用一个样例做演示
+
+//做饭
+function cook(){
+    console.log('开始做饭。');
+    var p = new Promise(function(resolve, reject){        //做一些异步操作
+        setTimeout(function(){
+            console.log('做饭失败！');
+            reject('烧焦的米饭');
+        }, 1000);
+    });
+    return p;
+}
+ 
+//吃饭
+function eat(data){
+    console.log('开始吃饭：' + data);
+    var p = new Promise(function(resolve, reject){        //做一些异步操作
+        setTimeout(function(){
+            console.log('吃饭完毕!');
+            resolve('一块碗和一双筷子');
+        }, 2000);
+    });
+    return p;
+}
+ 
+cook()
+.then(eat, function(data){
+  console.log(data + '没法吃!');
+})
+运行结果如下：
+
+原文:JS - Promise使用详解2（ES6中的Promise）
+（2）如果我们只要处理失败的情况可以使用 then(null, ...)，或是使用接下来要讲的 catch 方法。
+
+cook()
+.then(null, function(data){
+  console.log(data + '没法吃!');
+})
+ 
+
+3，catch()方法
+（1）它可以和 then 的第二个参数一样，用来指定 reject 的回调
+
+
+cook()
+.then(eat)
+.catch(function(data){
+    console.log(data + '没法吃!');
+});
+
+（2）它的另一个作用是，当执行 resolve 的回调（也就是上面 then 中的第一个参数）时，如果抛出异常了（代码出错了），那么也不会报错卡死 js，而是会进到这个 catch 方法中。
+
+//做饭
+function cook(){
+    console.log('开始做饭。');
+    var p = new Promise(function(resolve, reject){        //做一些异步操作
+        setTimeout(function(){
+            console.log('做饭完毕！');
+            resolve('鸡蛋炒饭');
+        }, 1000);
+    });
+    return p;
+}
+ 
+//吃饭
+function eat(data){
+    console.log('开始吃饭：' + data);
+    var p = new Promise(function(resolve, reject){        //做一些异步操作
+        setTimeout(function(){
+            console.log('吃饭完毕!');
+            resolve('一块碗和一双筷子');
+        }, 2000);
+    });
+    return p;
+}
+ 
+cook()
+.then(function(data){
+    throw new Error('米饭被打翻了！');
+    eat(data);
+})
+.catch(function(data){
+    console.log(data);
+});
+运行结果如下：
+
+原文:JS - Promise使用详解2（ES6中的Promise）
+这种错误的捕获是非常有用的，因为它能够帮助我们在开发中识别代码错误。比如，在一个 then() 方法内部的任意地方，我们做了一个 JSON.parse() 操作，如果 JSON 参数不合法那么它就会抛出一个同步错误。用回调的话该错误就会被吞噬掉，但是用 promises 我们可以轻松的在 catch() 方法里处理掉该错误。
+ 
+（3）还可以添加多个 catch，实现更加精准的异常捕获。
+
+somePromise.then(function() {
+ return a();
+}).catch(TypeError, function(e) {
+ //If a is defined, will end up here because
+ //it is a type error to reference property of undefined
+}).catch(ReferenceError, function(e) {
+ //Will end up here if a wasn't defined at all
+}).catch(function(e) {
+ //Generic catch-the rest, error wasn't TypeError nor
+ //ReferenceError
+});
+ 
+4，all()方法
+Promise 的 all 方法提供了并行执行异步操作的能力，并且在所有异步操作执行完后才执行回调。
+ 
+（1）比如下面代码，两个个异步操作是并行执行的，等到它们都执行完后才会进到 then 里面。同时 all 会把所有异步操作的结果放进一个数组中传给 then。
+
+//切菜
+function cutUp(){
+    console.log('开始切菜。');
+    var p = new Promise(function(resolve, reject){        //做一些异步操作
+        setTimeout(function(){
+            console.log('切菜完毕！');
+            resolve('切好的菜');
+        }, 1000);
+    });
+    return p;
+}
+ 
+//烧水
+function boil(){
+    console.log('开始烧水。');
+    var p = new Promise(function(resolve, reject){        //做一些异步操作
+        setTimeout(function(){
+            console.log('烧水完毕！');
+            resolve('烧好的水');
+        }, 1000);
+    });
+    return p;
+}
+ 
+Promise
+.all([cutUp(), boil()])
+.then(function(results){
+    console.log("准备工作完毕：");
+    console.log(results);
+});
+
+（2）运行结果如下：
+
+原文:JS - Promise使用详解2（ES6中的Promise）
+5，race()方法
+race 按字面解释，就是赛跑的意思。race 的用法与 all 一样，只不过 all 是等所有异步操作都执行完毕后才执行 then 回调。而 race 的话只要有一个异步操作执行完毕，就立刻执行 then 回调。
+注意：其它没有执行完毕的异步操作仍然会继续执行，而不是停止。
+ 
+（1）这里我们将上面样例的 all 改成 race
+
+Promise
+.race([cutUp(), boil()])
+.then(function(results){
+    console.log("准备工作完毕：");
+    console.log(results);
+});
+原文:JS - Promise使用详解2（ES6中的Promise）
+ 
+（2）race 使用场景很多。比如我们可以用 race 给某个异步请求设置超时时间，并且在超时后执行相应的操作。
+
+//请求某个图片资源
+function requestImg(){
+    var p = new Promise(function(resolve, reject){
+    var img = new Image();
+    img.onload = function(){
+       resolve(img);
+    }
+    img.src = 'xxxxxx';
+    });
+    return p;
+}
+ 
+//延时函数，用于给请求计时
+function timeout(){
+    var p = new Promise(function(resolve, reject){
+        setTimeout(function(){
+            reject('图片请求超时');
+        }, 5000);
+    });
+    return p;
+}
+ 
+Promise
+.race([requestImg(), timeout()])
+.then(function(results){
+    console.log(results);
+})
+.catch(function(reason){
+    console.log(reason);
+});
+上面代码 requestImg 函数异步请求一张图片，timeout 函数是一个延时 5 秒的异步操作。我们将它们一起放在 race 中赛跑。
+
+如果 5 秒内图片请求成功那么便进入 then 方法，执行正常的流程。
+如果 5 秒钟图片还未成功返回，那么则进入 catch，报“图片请求超时”的信息。
+原文:JS - Promise使用详解2（ES6中的Promise）
